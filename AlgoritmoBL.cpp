@@ -19,18 +19,15 @@ AlgoritmoBL::AlgoritmoBL(const arma::mat& data, const arma::Col<int>& labels) {
 ///// Función para generar vecinos de una solución actual /////
 ///////////////////////////////////////////////////////////////
 
-// Se empleará el movimiento de cambio por mutación normal para generar vecinos
-arma::rowvec AlgoritmoBL::generarVecino(const arma::rowvec& W) {
-    arma::rowvec nuevoW = W; // Copiar W para no modificar el original
-    // Aplicar mutación normal a un elemento aleatorio de W
-    int index = rand() % W.size(); // Elegir un índice aleatorio
-    double mutation = arma::randn() * 0.3; // Usar varianza de 0.3 como ejemplo
-    nuevoW[index] += mutation; // Aplicar la mutación al índice elegido
-
-    // Asegurar que los pesos se mantienen en el rango [0, 1]
-    nuevoW = arma::clamp(nuevoW, 0.0, 1.0); // Usar 0.0 y 1.0 como límites inferior y superior
+arma::rowvec AlgoritmoBL::generarVecino(const arma::rowvec& W, int indice) {
+    arma::rowvec nuevoW = W;
+    double mutation = arma::randn() * 0.3; // Varianza de 0.3
+    nuevoW[indice] += mutation; // Aplicar la mutación en la característica específica
+    nuevoW = arma::clamp(nuevoW, 0.0, 1.0); // Mantener los pesos en [0, 1]
     return nuevoW;
 }
+
+
 
 
     
@@ -91,33 +88,30 @@ double AlgoritmoBL::objectiveFunction(const arma::rowvec& W) {
     return alpha * accuracy + (1 - alpha) * complexity;
 }
 
-// Ejecución del Algoritmo BL
+// Algoritmo de Búsqueda Local
 void AlgoritmoBL::ejecutarBL() {
     bool mejora = true;
     int evaluaciones = 0;
-    const int MAX_EVALUACIONES = 15000;
-    const int MAX_VECINOS = 20 * dataset.data.n_cols; // 20*n
-    int vecinosGenerados = 0; // Contador para los vecinos generados sin mejora
+    const int MAX_EVALUACIONES = 15000; // Número máximo de evaluaciones de la función objetivo
+    int n_caracteristicas = dataset.data.n_cols; // Número de características
+    const int MAX_VECINOS = 20 * n_caracteristicas; // Número máximo de vecinos a explorar
+    std::vector<int> indices(n_caracteristicas); // Vector para seguir las características ya mutadas
+    std::iota(indices.begin(), indices.end(), 0); // Llenar el vector con valores de 0 a n-1
 
-    // Exploración del vecindario: En cada paso de la exploraciión, se mutará un componente distinto sin repetición, en un orden aleatorio distinto para cada solución,
-    // hasta que haya mejora o se hayan modificado todas las posiciones una vez sin conseguir mejora.
-    // En ese momento se comienza una nueva exploración sobre la nueva solución aceptada, si ha habido mejora, o sobre la actual si no la ha habido.
-    while (evaluaciones < MAX_EVALUACIONES && vecinosGenerados < MAX_VECINOS) {
-        arma::rowvec vecino = generarVecino(this->dataset.W); 
-        double valorObjetivoVecino = objectiveFunction(vecino);
-        if (valorObjetivoVecino > objectiveFunction(this->dataset.W)) { // Criterio de aceptacion ==> Se considera una mejora cuando aumenta el valor global de la función objetivo
-            this->dataset.W = vecino; // Aceptamos el nuevo vecino como solución actual
-            mejora = true;
-            vecinosGenerados = 0; // Restablecer el contador de vecinos ya que encontramos una mejora
-        } else {
-            vecinosGenerados++; // Incrementar el contador de vecinos generados sin mejora
-        }
-        evaluaciones++;
-        
-        // Si no hay mejora, se sigue iterando hasta alcanzar el máximo de vecinos generados
-        if (vecinosGenerados >= MAX_VECINOS) {
-            mejora = false; // Establecer mejora a falso para salir del bucle si se alcanza el máximo de vecinos sin mejora
+    // Búsqueda local
+
+    while (mejora && evaluaciones < MAX_EVALUACIONES) { // Condición de parada ==> mejora = false o evaluaciones >= MAX_EVALUACIONES
+        mejora = false;
+        std::random_shuffle(indices.begin(), indices.end()); // Orden aleatorio sin repetición
+        for (int i = 0; i < MAX_VECINOS && !mejora; ++i) { // Condición de parada ==> mejora = true
+            arma::rowvec vecino = generarVecino(this->dataset.W, indices[i % n_caracteristicas]); // Generar un vecino
+            double valorObjetivoVecino = objectiveFunction(vecino); // Calcular el valor objetivo del vecino
+            if (valorObjetivoVecino > objectiveFunction(this->dataset.W)) {
+                this->dataset.W = vecino; // Aceptamos el nuevo vecino como solución actual
+                mejora = true;
+                std::iota(indices.begin(), indices.end(), 0); // Reiniciar los índices para la próxima iteración
+            }
+            evaluaciones++;
         }
     }
 }
-

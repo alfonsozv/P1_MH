@@ -31,7 +31,7 @@ private:
     double calcularPrecision(const arma::mat& data, const arma::Col<int>& labels, const arma::rowvec& W);
     double calcularComplejidad(const arma::rowvec& W);
     double objectiveFunction(const arma::rowvec& W);
-    arma::rowvec generarVecino(const arma::rowvec& W);
+    arma::rowvec generarVecino(const arma::rowvec& W, int indice);
 };
 
 #endif // ALGORITMO_BL_H

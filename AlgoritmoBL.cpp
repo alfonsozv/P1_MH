@@ -9,6 +9,10 @@
 ////////////// Constructor de la clase/////////////////////////
 ///////////////////////////////////////////////////////////////
 
+// Parámetros del constructor
+// const arma::mat& data: Un parámetro constante que es una referencia a una matriz de datos. (Ahí almacenamos los datos del programa donde las filas son las instancias y las columnas las características).
+// const arma::Col<int>& labels: Un parámetro constante que es una referencia a un vector de etiquetas. (Ahí almacenamos las etiquetas de las instancias).
+
 AlgoritmoBL::AlgoritmoBL(const arma::mat& data, const arma::Col<int>& labels) {
     this->dataset.data = data;
     this->dataset.labels = labels;

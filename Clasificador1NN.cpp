@@ -32,15 +32,15 @@ struct Dataset {
 ///////////////////////////////////////////////////////////////
 
 // La distancia euclidiana se utiliza para encontrar el punto más cercano 
-//  (o "vecino más cercano") a un punto dado dentro de un conjunto de datos. 
-//  El punto con la menor distancia euclidiana se considera el más similar o más 
-//  cercano al punto de consulta.
+// (o "vecino más cercano") a un punto dado dentro de un conjunto de datos. 
+// El punto con la menor distancia euclidiana se considera el más similar o más 
+// cercano al punto de consulta.
 
 // Parámetros de la Función
 // const arma::rowvec& a y const arma::rowvec& b: Los parámetros a y b son referencias constantes a objetos de tipo arma::rowvec,
-//  que representan vectores fila en Armadillo. Estos vectores fila contienen las coordenadas de dos puntos entre los cuales se calculará 
-//  la distancia Euclidiana. Utilizar referencias constantes asegura que los vectores no se copien innecesariamente al llamar a la función, 
-//  mejorando la eficiencia, y que no sean modificados dentro de la función.
+// que representan vectores fila en Armadillo. Estos vectores fila contienen las coordenadas de dos puntos entre los cuales se calculará 
+// la distancia Euclidiana. Utilizar referencias constantes asegura que los vectores no se copien innecesariamente al llamar a la función, 
+// mejorando la eficiencia, y que no sean modificados dentro de la función.
 
 // Cuerpo de la Función
 // arma::norm(a - b, 2): Esta línea es el núcleo de la función. Aquí es donde Armadillo realiza el cálculo de la distancia Euclidiana.
